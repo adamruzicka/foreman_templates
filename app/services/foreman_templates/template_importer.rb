@@ -81,9 +81,6 @@ module ForemanTemplates
                    case metadata['kind']
                    when 'ptable'
                      Ptable.import!(name, text, metadata)
-                   when 'job_template'
-                     # TODO: update REX templates to have `model` and delete this
-                     update_job_template(name, text)
                    else
                      ProvisioningTemplate.import!(name, text, metadata)
                    end
@@ -129,35 +126,6 @@ module ForemanTemplates
       # Pull out the first erb comment only - /m is for a multiline regex
       extracted = text.match(/<%\#[\t a-z0-9=:]*(.+?).-?%>/m)
       extracted.nil? ? {} : YAML.load(extracted[1])
-    end
-
-    def update_job_template(name, text)
-      file = name.gsub(/^#{@prefix}/, '')
-      puts 'Deprecation warning: JobTemplate support is moving to the Remote Execution plugin'
-      puts "- please add 'model: JobTemplate' to the metadata in '#{file}' to call the right method"
-
-      return {
-        :status => false,
-        :result => 'Skipping job template import, remote execution plugin is not installed.'
-      } unless defined?(JobTemplate)
-      template = JobTemplate.import(
-        text.sub(/^name: .*$/, "name: #{name}"),
-        :update => true
-      )
-
-      c_or_u = template.new_record? ? 'Created' : 'Updated'
-      id_string = ('id' + template.id) rescue ''
-
-      if template.template != template.template_was
-        diff = Diffy::Diff.new(
-          template.template_was,
-          template.template,
-          :include_diff_info => true
-        ).to_s(:color)
-      end
-
-      result = "  #{c_or_u} Template #{id_string}:#{name}"
-      { :diff => diff, :status => template.save, :result => result }
     end
 
     def purge!
