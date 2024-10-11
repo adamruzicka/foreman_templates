@@ -13,6 +13,10 @@ import SyncSettingsFields from '../SyncSettingFields';
 import SyncTypeRadios from '../SyncTypeRadios';
 import { redirectToResult, syncFormSchema } from './NewTemplateSyncFormHelpers';
 
+import { Field as FormikField } from 'formik';
+import RenderField from '../TextButtonField/RenderField';
+import { get } from 'lodash';
+
 const NewTemplateSyncForm = ({
   error,
   submitForm,
@@ -108,6 +112,44 @@ const NewTemplateSyncForm = ({
         exportSettings={exportSettings}
         syncType={syncType}
         resetField={resetToDefault}
+      />
+      <FormikField
+        name={`${syncType}.asd`}
+        render={({ field, form }) => {
+          name = `${syncType}.asd`;
+
+        return (
+          <RenderField
+            label={name}
+            fieldSelector={(_) => "select"}
+            tooltipHelp={"halp"}
+            buttonAttrs={{
+              buttonText: "button text",
+              buttonAction: () => resetToDefault(name, 7)(form.setFieldValue),
+            }}
+            blank={{}}
+            item={{selection: [{value: 7, label: "7"}, {value: 3, label: "3"}]}}
+            disabled={false}
+            fieldRequired={true}
+            meta={{
+              touched: get(form.touched, name),
+              error: get(form.errors, name),
+            }}
+            input={field}
+          />
+        )}}
+      />
+      <FormikField
+        name={`${syncType}.asd`}
+        render={({ field, form }) => {
+          name = `${syncType}.asd`;
+
+          if (form.values[syncType].asd == 3) {
+            return (<></>);
+          } else {
+            return <h1>Not 3</h1>
+          }
+        }}
       />
     </ForemanForm>
   );
